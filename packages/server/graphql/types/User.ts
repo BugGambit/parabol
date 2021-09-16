@@ -422,7 +422,7 @@ const User = new GraphQLObjectType<any, GQLContext>({
           description: 'Only return reflection groups that match the search query'
         }
       },
-      resolve: async ({id: userId}, {reflectionId}, {dataLoader}) => {
+      resolve: async ({id: userId}, {reflectionId, searchQuery}, {dataLoader}) => {
         const retroReflection = await dataLoader.get('retroReflections').load(reflectionId)
         if (!retroReflection) {
           return standardError(new Error('Invalid reflection id'), {userId})
@@ -439,6 +439,18 @@ const User = new GraphQLObjectType<any, GQLContext>({
             .orderBy('createdAt')
             .run()
         ])
+
+        if (searchQuery && searchQuery.trim() !== '') {
+          const relatedReflections = reflections.filter(({plaintextContent}) =>
+            plaintextContent.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+          const relatedGroupIds = relatedReflections.map(({reflectionGroupId}) => reflectionGroupId)
+          return r
+            .table('RetroReflectionGroup')
+            .getAll(r.args(Array.from(relatedGroupIds)), {index: 'id'})
+            .run()
+        }
+
         const {meetingId: viewerMeetingId} = viewerMeetingMember
         if (viewerMeetingId !== meetingId) {
           return standardError(new Error('Not on team'), {userId})
