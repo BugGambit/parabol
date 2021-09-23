@@ -444,9 +444,9 @@ const User = new GraphQLObjectType<any, GQLContext>({
           const relatedReflections = reflections.filter(({plaintextContent}) =>
             plaintextContent.toLowerCase().includes(searchQuery.toLowerCase())
           )
-          const relatedGroupIds = relatedReflections
-            .map(({reflectionGroupId}) => reflectionGroupId)
-            .slice(0, 10)
+          const relatedGroupIds = [
+            ...new Set(relatedReflections.map(({reflectionGroupId}) => reflectionGroupId))
+          ].slice(0, 10)
           return r
             .table('RetroReflectionGroup')
             .getAll(r.args(Array.from(relatedGroupIds)), {index: 'id'})
