@@ -441,9 +441,10 @@ const User = new GraphQLObjectType<any, GQLContext>({
         ])
 
         if (searchQuery && searchQuery.trim() !== '') {
-          const relatedReflections = reflections.filter(({plaintextContent}) =>
+          const matchedReflections = reflections.filter(({plaintextContent}) =>
             plaintextContent.toLowerCase().includes(searchQuery.toLowerCase())
           )
+          const relatedReflections = matchedReflections.filter(({id}) => id != reflectionId)
           const relatedGroupIds = [
             ...new Set(relatedReflections.map(({reflectionGroupId}) => reflectionGroupId))
           ].slice(0, 10)
