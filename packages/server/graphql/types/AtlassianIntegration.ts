@@ -126,9 +126,10 @@ const AtlassianIntegration = new GraphQLObjectType<any, GQLContext>({
             projectKeyFiltersByCloudId[cloudId] = []
           })
         }
-
+        console.log('atlassian integration issues calilng getIssues')
         const issueRes = await manager.getIssues(queryString, isJQL, projectKeyFiltersByCloudId)
         const {error, issues} = issueRes
+        // console.log('issueRes:', issueRes)
         const mappedIssues = issues.map((issue) => {
           const {updatedDescription, imageUrlToHash} = updateJiraImageUrls(
             issue.cloudId,
